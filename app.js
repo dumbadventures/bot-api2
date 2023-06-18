@@ -1,9 +1,13 @@
 const express = require('express');
 const app = express();
-const notes = require('./routers/notes')
+
+// const notes = require('./routers/notes')
+const users = require('./routers/users');
 require('dotenv').config();
 
-app.use('/notes',notes);
+// app.use('/notes',notes);
+
+app.use('/users',users);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
