@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
     res.send(rows);
 });
   
-router.get("/:user_id/:server_id", async (req, res) => {
+router.get("/userId=:user_id/serverId=:server_id", async (req, res) => {
     const user_id = req.params.user_id;
     const server_id = req.params.server_id;
     if (!(await db.userExists(user_id,server_id))) {
@@ -30,9 +30,10 @@ router.get("/:user_id/:server_id", async (req, res) => {
     }
 });
   
-router.post("/:user_id/:server_id", async (req, res) => {
+router.post("/userId=:user_id/serverId=:server_id", async (req, res) => {
     const user_id = req.params.user_id;
     const server_id = req.params.server_id;
+    const {pronouns} = req.body;
     if (await db.userExists(user_id,server_id)) {
        return res.status(303).send("user already exists")
     }
@@ -40,11 +41,14 @@ router.post("/:user_id/:server_id", async (req, res) => {
         const user = await db.addUser(user_id,server_id); 
         return res.status(201).send(user);
     }
+    if(pronouns == undefined) { 
+        return res.status(303).send('incorrect parameters specified');
+    }
     const user = await db.addUser(user_id,server_id,pronouns); 
     res.status(201).send(user);
 });
 
-router.delete("/:user_id/:server_id", async (req,res) => {
+router.delete("/userId=:user_id/serverId=:server_id", async (req,res) => {
     const user_id = req.params.user_id;
     const server_id = req.params.server_id;
     if (!(await db.userExists(user_id,server_id))) {
@@ -54,8 +58,18 @@ router.delete("/:user_id/:server_id", async (req,res) => {
     res.status(201).send("user deleted"); 
 });
 
-// router.patch('/:user_id/:server_id', async (req,res) => {
-
-// })
+router.patch('/userId=:user_id/serverId=:server_id', async (req,res) => {
+    const user_id = req.params.user_id;
+    const server_id = req.params.server_id; 
+    if (!(await db.userExists(user_id,server_id))) {
+        return res.status(404).send('user does not exist');
+    }
+    const {pronouns} = req.body;
+    if (pronouns == undefined) {
+        return res.status(303).send('not enough information to update user')
+    }
+    const user = await db.updateUser(user_id,server_id,pronouns)
+    res.status(201).send(user);
+})
 
 module.exports = router;

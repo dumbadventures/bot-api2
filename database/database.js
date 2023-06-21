@@ -27,16 +27,15 @@ async function getUser(user_id, server_id) {
 // // optional parameter i included with pronouns
 
 async function addUser(user_id,server_id,pronouns) {
-  var sql_query = "INSERT INTO users (user_id, server_id, pronouns) VALUES (?,?,?)";
-  
+  var sql_query = "INSERT INTO users (user_id, server_id) VALUES (?,?)";
   var params = [user_id,server_id]; 
-  if(pronouns == undefined) {
+  if(pronouns != undefined) {
     sql_query = `
-    INSERT INTO users (user_id, server_id) 
-    VALUES (?,?)
+    INSERT INTO users (user_id, server_id, pronouns) 
+    VALUES (?,?,?)
     `;
+    params.push(JSON.stringify((pronouns)));
   }
-  params.push(pronouns);
   await pool.query(sql_query,params);
   return await getUser(user_id,server_id);
 }
@@ -50,18 +49,19 @@ async function deleteUser(user_id, server_id) {
 }
 
 async function updateUser(user_id,server_id,pronouns) {
+  pronouns = JSON.stringify((pronouns)); 
   await pool.query(`
   UPDATE users
   SET pronouns = ?
   WHERE user_id = ? AND server_id = ? 
   `,[pronouns,user_id,server_id]);
+  return await getUser(user_id,server_id);
 }
 
 async function userExists(user_id, server_id) {
   const user = await getUser(user_id,server_id); 
   return user != undefined; 
 }
-
 
 
 module.exports =  {
