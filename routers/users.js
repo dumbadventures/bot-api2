@@ -37,13 +37,6 @@ router.post("/userId=:user_id/serverId=:server_id", async (req, res) => {
     if (await db.userExists(user_id,server_id)) {
        return res.status(303).send("user already exists")
     }
-    if (req.body == undefined) {
-        const user = await db.addUser(user_id,server_id); 
-        return res.status(201).send(user);
-    }
-    if(pronouns == undefined) { 
-        return res.status(303).send('incorrect parameters specified');
-    }
     const user = await db.addUser(user_id,server_id,pronouns); 
     res.status(201).send(user);
 });
